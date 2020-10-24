@@ -5,9 +5,9 @@ Minecraft plugin [FactionsX](https://www.spigotmc.org/resources/factionsx.83459/
 
 The visualisation can be enabled by calling /f visualise-borders or /f v-b. The command also has a performance option
 
-- /f visualise Fast - fewer particles
-- /f visualise Normal - normal amount of particles
-- /f visualise Fancy - a lot of particles
+- /f visualise-borders Fast - fewer particles
+- /f visualise-borders Normal - normal amount of particles
+- /f visualise-borders Fancy - a lot of particles
 
 # How to install
 Drop the .jar inside the `/plugins/FactionsX/addons` folder
