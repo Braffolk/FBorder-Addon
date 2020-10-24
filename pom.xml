@@ -6,7 +6,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>FBorderVisualiser-Addon</artifactId>
-  <version>v0.1-1.0.7-RC</version>
+  <version>v0.1-1.0.8-RC</version>
 
   <properties>
     <kotlin.version>1.4.10</kotlin.version>
@@ -61,17 +61,12 @@
             <configuration>
               <artifactSet>
                 <includes>
-                  <include>net.prosavage.factionsx.addonframework.*</include>
                   <include>org.jetbrains.kotlin:kotlin-stdlib</include>
                   <include>org.jetbrains.kotlin:kotlin-stdlib-common</include>
                   <include>org.jetbrains.kotlin:kotlin-stdlib-jdk8</include>
                 </includes>
               </artifactSet>
               <relocations>
-                <relocation>
-                  <pattern>net.prosavage.factionsx.addonframework</pattern>
-                  <shadedPattern>net.prosavage.factionsx.shade.addonframework</shadedPattern>
-                </relocation>
               </relocations>
             </configuration>
           </execution>
