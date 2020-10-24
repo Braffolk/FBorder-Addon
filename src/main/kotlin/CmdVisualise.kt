@@ -6,7 +6,7 @@ import net.prosavage.factionsx.command.engine.FCommand
 
 
 class PerformanceArgument : FCommand.ArgumentType() {
-  override fun getPossibleValues(fPlayer: net.prosavage.factionsx.core.FPlayer?): List<String> = listOf("fast", "normal", "fancy")
+  override fun getPossibleValues(fPlayer: net.prosavage.factionsx.core.FPlayer?): List<String> = listOf("Fast", "Normal", "Fancy")
 }
 
 class CmdVisualise(private val visualisationHandler: VisualisationHandler) : FCommand() {
