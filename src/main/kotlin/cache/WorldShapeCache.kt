@@ -1,6 +1,7 @@
-package ee.braffolk.factionsx
+package ee.braffolk.factionsx.cache
 
 import net.prosavage.factionsx.core.Faction
+import net.prosavage.factionsx.manager.FactionManager
 import net.prosavage.factionsx.manager.GridManager
 import net.prosavage.factionsx.persist.data.FLocation
 import java.util.*
@@ -37,6 +38,8 @@ class WorldShapeCache(val world: String) {
     }
   }
 
+  fun cacheFaction(faction: Long) = cacheFaction(FactionManager.getFaction(faction))
+
   fun cacheFaction(faction: Faction) {
     factionChunks[faction.id] = LinkedList()
     GridManager.getAllClaims(faction)
@@ -72,8 +75,8 @@ class WorldShapeCache(val world: String) {
           }
           .map {
             FLocation(
-                c.x * 16 + if (it.x > c.x) 16 else 0,
-                c.z * 16 + if (it.z > c.z) 16 else 0,
+                c.x * 16 + if (it.x > c.x) 15 else 0,
+                c.z * 16 + if (it.z > c.z) 15 else 0,
                 c.world
             )
           }
@@ -95,8 +98,8 @@ class WorldShapeCache(val world: String) {
           }
           .map {
             FLocation(
-                c.x * 16 + if (it.x > c.x) 16 else 0,
-                c.z * 16 + if (it.z > c.z) 16 else 0,
+                c.x * 16 + if (it.x > c.x) 15 else 0,
+                c.z * 16 + if (it.z > c.z) 15 else 0,
                 c.world
             )
           }
@@ -109,10 +112,10 @@ class WorldShapeCache(val world: String) {
       pairs
           .filter { p -> chunks.none { it.x == p.x && it.z == p.z } }
           .map {
-            val x = c.x * 16 + if (it.x > c.x) 16 else 0
+            val x = c.x * 16 + if (it.x > c.x) 15 else 0
             Line(
                 FLocation(x, c.z * 16, c.world),
-                FLocation(x, c.z * 16 + 16, c.world)
+                FLocation(x, c.z * 16 + 15, c.world)
             )
           }
     }
@@ -121,10 +124,10 @@ class WorldShapeCache(val world: String) {
       pairs
           .filter { p -> chunks.none { it.x == p.x && it.z == p.z } }
           .map {
-            val z = c.z * 16 + if (it.z > c.z) 16 else 0
+            val z = c.z * 16 + if (it.z > c.z) 15 else 0
             Line(
                 FLocation(c.x * 16, z, c.world),
-                FLocation(c.x * 16 + 16, z, c.world)
+                FLocation(c.x * 16 + 15, z, c.world)
             )
           }
     }
@@ -138,19 +141,18 @@ class WorldShapeCache(val world: String) {
     return factionOuterCorners[faction.id]!!
   }
 
-  fun getFactionXLines(faction: Faction): List<Line> {
-    return factionXLines[faction.id]!!
-  }
+  fun getFactionXLines(faction: Faction): List<Line> = getFactionXLines(faction.id)
+  fun getFactionZLines(faction: Faction): List<Line> = getFactionZLines(faction.id)
 
-  fun getFactionZLines(faction: Faction): List<Line> {
-    return factionZLines[faction.id]!!
-  }
+  fun getFactionXLines(faction: Long): List<Line> = factionXLines[faction]!!
+  fun getFactionZLines(faction: Long): List<Line> = factionZLines[faction]!!
 
   fun getFactionChunks(faction: Faction): List<FLocation> {
     return factionChunks[faction.id]!!
   }
 
-  fun isCached(faction: Faction): Boolean {
-    return factionChunks.containsKey(faction.id)
+  fun isCached(faction: Faction): Boolean = isCached(faction.id)
+  fun isCached(faction: Long): Boolean {
+    return factionChunks.containsKey(faction)
   }
 }

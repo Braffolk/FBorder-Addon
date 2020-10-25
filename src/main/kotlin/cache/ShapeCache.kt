@@ -1,12 +1,8 @@
-package ee.braffolk.factionsx
+package ee.braffolk.factionsx.cache
 
 import net.prosavage.factionsx.core.Faction
-import net.prosavage.factionsx.manager.GridManager
 import net.prosavage.factionsx.persist.data.FLocation
 import org.bukkit.Bukkit
-import org.bukkit.event.server.BroadcastMessageEvent
-import java.util.*
-import kotlin.collections.HashMap
 
 data class Line(
     val p1: FLocation,
@@ -59,4 +55,6 @@ class ShapeCache {
 
   fun isCached(faction: Faction): Boolean =
       worldCaches.all { (world, cache) -> cache.isCached(faction) }
+
+  fun getWorldCache(world: String): WorldShapeCache = worldCaches[world]!!
 }

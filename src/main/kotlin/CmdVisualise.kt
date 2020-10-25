@@ -34,6 +34,10 @@ class CmdVisualise(private val visualisationHandler: VisualisationHandler) : FCo
     if(!visualisationHandler.hasPlayer(player!!)) {
       visualisationHandler.addPlayer(player, performance)
       info.message("Turned borders on")
+    } else if(performance != visualisationHandler.getPlayerPerformance(player)) {
+      info.message("Changed borders performance setting")
+      visualisationHandler.removePlayer(player)
+      visualisationHandler.addPlayer(player, performance)
     } else {
       visualisationHandler.removePlayer(player)
       info.message("Turned borders off")

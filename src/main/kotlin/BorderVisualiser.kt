@@ -5,7 +5,6 @@ import net.prosavage.factionsx.FactionsX
 import net.prosavage.factionsx.addonframework.Addon
 import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
-import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.PluginManager
 
 
