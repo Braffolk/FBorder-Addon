@@ -23,3 +23,10 @@ Drop the .jar inside the `/plugins/FactionsX/addons` folder
 
 # Ideas for improvement
 I'm looking for alternative ideas on how to make it more readable and visually appealing. If you have any ideas, drop them down here: https://github.com/Braffolk/FBorder-Addon/issues
+
+If you want to contribute, feel free to open a PR. If you found a bug, report it in issues. 
+
+# Planned features
+- configurable server performance settings
+- configurable relation colours
+- server remembering whether the player wanted to have visualisations on
