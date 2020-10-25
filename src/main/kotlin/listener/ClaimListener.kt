@@ -45,12 +45,6 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
   }
 
   @EventHandler
-  fun onPlayerLogout(event: PlayerQuitEvent) {
-    val player = event.player
-    visualisationHandler.removePlayer(player)
-  }
-
-  @EventHandler
   fun onBlockBreak(event: BlockBreakEvent) {
     val faction = GridManager.getFactionAt(event.block.chunk)
     if(!faction.isSystemFaction()) {

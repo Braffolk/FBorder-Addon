@@ -44,8 +44,6 @@ class VisualisationHandler {
             val player = Bukkit.getPlayer(it)
             if (player != null && player.isOnline) {
               visualise(player)
-            } else {
-              playerList.remove(it)
             }
           }
         } catch (e: Exception) {
