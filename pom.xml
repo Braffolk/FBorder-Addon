@@ -5,8 +5,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.example</groupId>
-  <artifactId>FBorderVisualiser-Addon</artifactId>
-  <version>v0.1-1.0.8-RC</version>
+  <artifactId>FBorder-Addon</artifactId>
+  <version>v0.2-1.0.8-RC</version>
 
   <properties>
     <kotlin.version>1.4.10</kotlin.version>

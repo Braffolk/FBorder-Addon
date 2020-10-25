@@ -1,5 +1,5 @@
 # Project exclude paths
 /target/
 dependency-reduced-pom.xml
-FBorderVisualiser-Addon.iml
+FBorder.iml
 .idea

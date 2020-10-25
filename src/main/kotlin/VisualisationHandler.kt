@@ -77,18 +77,14 @@ class VisualisationHandler {
 
     val eyeY = player.eyeLocation.y.toLong()
     val verticalRange = max(0, (eyeY - 32) / 64 * 64)..min((eyeY + 64) / 64 * 64, 256)
-    val maxRenderDistance = (player.clientViewDistance * 16).toDouble().pow(2).toLong()
+    val maxRenderDistance = (Bukkit.getViewDistance() * 16).toDouble().pow(2).toLong()
 
-    val performanceNumber = when (playerPerformanceMap[player.uniqueId]) {
+    val playerPerformanceF = when (playerPerformanceMap[player.uniqueId]) {
       VisualisationPerformance.Fast -> 4.0
       VisualisationPerformance.Normal -> 2.0
       VisualisationPerformance.Fancy -> 1.0
       else -> 2.0
     }
-    val calculateStep = { diff: Double -> max(performanceNumber, abs(diff) / (10 - performanceNumber)) }
-
-    val bottomStep = calculateStep((eyeY - verticalRange.first).toDouble())
-    val topStep = calculateStep((eyeY - verticalRange.last).toDouble())
 
     FactionManager.getFactions().forEach { faction ->
       if (!faction.isSystemFaction()) {
@@ -103,15 +99,30 @@ class VisualisationHandler {
             (factionColor.blue - 48).coerceAtLeast(0)
         )
 
+        // get all lines and planes to be rendered
+        val outerCorners = shapeCache.getFactionOuterCorners(faction, worldName)
+        val innerCorners = shapeCache.getFactionInnerCorners(faction, worldName)
+
+        val zLines = shapeCache.getFactionZLines(faction, worldName)
+        val xLines = shapeCache.getFactionXLines(faction, worldName)
+
+        val horisontalPlanes = shapeCache.getFactionChunks(faction, worldName)
+
+        val shapeCount = outerCorners.size + innerCorners.size + xLines.size + zLines.size + horisontalPlanes.size
+        val dynamicPerformanceF = (log(shapeCount.toDouble(), 8.0 - playerPerformanceF) - 2.0).coerceAtLeast(0.0)
+        val performanceF = playerPerformanceF + dynamicPerformanceF
+
+        // dusts for top and bottom planes
+        val calculateStep = { diff: Double -> max(performanceF, abs(diff) / (10 - performanceF)) }
+        val bottomStep = calculateStep((eyeY - verticalRange.first).toDouble())
+        val topStep = calculateStep((eyeY - verticalRange.last).toDouble())
+
         val bottomDust = Particle.DustOptions(factionColor, bottomStep.toFloat())
         val topDust = Particle.DustOptions(factionColor, topStep.toFloat())
 
         // visualise vertical corner lines
-        listOf(
-            shapeCache.getFactionOuterCorners(faction, worldName),
-            shapeCache.getFactionInnerCorners(faction, worldName)
-        ).zip(listOf(factionColor, factionColorDark))
-            .forEach { (lines, color) ->
+        listOf(outerCorners, innerCorners).zip(listOf(factionColor, factionColorDark))
+            .forEach { (lines, wantedColor) ->
               lines.zip(lines.map {
                 val loc = Location(player.world, it.x.toDouble(), eyeY.toDouble(), it.z.toDouble())
                 player.location.distanceSquared(loc)
@@ -119,12 +130,11 @@ class VisualisationHandler {
                   .filter { it.second < maxRenderDistance }
                   .forEach { (line, distance) ->
                     var y = verticalRange.first.toDouble()
+                    val step = (distance / (maxRenderDistance * (dynamicPerformanceF + 1.0)) * 16 + performanceF).coerceAtLeast(1.0)
                     while (true) {
-                      val step = (distance / maxRenderDistance * 16).coerceAtLeast(1.0)
-                      y += step
-                      if (y > verticalRange.last) {
-                        break
-                      }
+                      if (y > verticalRange.last) { break }
+                      val color = if(Math.random() < 0.2) { Color.BLACK } else { wantedColor }
+
                       val dust = Particle.DustOptions(color, step.coerceAtLeast(2.0).toFloat())
 
                       player.spawnParticle(
@@ -133,15 +143,13 @@ class VisualisationHandler {
                           0,
                           dust
                       )
+                      y += step
                     }
                   }
             }
 
         // horisontal line at eye height
-        listOf(
-            shapeCache.getFactionZLines(faction, worldName),
-            shapeCache.getFactionXLines(faction, worldName)
-        ).forEach { lines ->
+        listOf(zLines, xLines).forEach { lines ->
           lines
               .zip(lines.map {
                 val loc = Location(player.world,
@@ -154,9 +162,10 @@ class VisualisationHandler {
               .forEach { (line, distance) ->
                 val size = (distance / maxRenderDistance * 16).coerceAtLeast(2.0)
                 val eyeDust = Particle.DustOptions(factionColor, size.toFloat())
+                val step = (distance / (maxRenderDistance * (dynamicPerformanceF + 1.0)) * 16 + performanceF).coerceAtLeast(1.0)
 
-                for (x in line.p1.x..line.p2.x step (1 + performanceNumber).toLong()) {
-                  for (z in line.p1.z..line.p2.z step (1 + performanceNumber).toLong()) {
+                for (x in line.p1.x..line.p2.x step step.toLong()) {
+                  for (z in line.p1.z..line.p2.z step step.toLong()) {
                     createParticle(player, x, eyeY + 1, z, eyeDust)
                   }
                 }
@@ -164,8 +173,6 @@ class VisualisationHandler {
         }
 
         // bottom and top plane
-        val horisontalPlanes = shapeCache.getFactionChunks(faction, worldName)
-
         horisontalPlanes
             .zip(horisontalPlanes.map {
               val loc = Location(player.world, (it.x * 16 + 8).toDouble(), eyeY.toDouble(), (it.z * 16 + 8).toDouble())
@@ -173,7 +180,7 @@ class VisualisationHandler {
             })
             .filter { (loc, distance) -> distance < maxRenderDistance }
             .forEach { (loc, distance) ->
-              var step = floor(5.0 - performanceNumber / 2)
+              var step = floor(5.0 - performanceF / 2 - dynamicPerformanceF * distance/maxRenderDistance).coerceAtLeast(2.0)
               repeat(step.toInt()) { x ->
                 repeat(step.toInt()) { z ->
                   val px = loc.x * 16 + (x / (step - 1) * 16.0)
