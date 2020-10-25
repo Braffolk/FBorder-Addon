@@ -6,13 +6,17 @@
 
   <groupId>org.example</groupId>
   <artifactId>FBorder-Addon</artifactId>
-  <version>v0.3-1.0.8-RC</version>
+  <version>v0.4-1.0.8-RC</version>
 
   <properties>
     <kotlin.version>1.4.10</kotlin.version>
   </properties>
 
   <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
 
     <repository>
       <id>savagelabs</id>
@@ -37,7 +41,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.2.0</version>
         <configuration>
           <archive>
             <manifest>
@@ -51,7 +55,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.4</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -59,14 +63,16 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <artifactSet>
-                <includes>
-                  <include>org.jetbrains.kotlin:kotlin-stdlib</include>
-                  <include>org.jetbrains.kotlin:kotlin-stdlib-common</include>
-                  <include>org.jetbrains.kotlin:kotlin-stdlib-jdk8</include>
-                </includes>
-              </artifactSet>
+              <minimizeJar>true</minimizeJar>
               <relocations>
+                <relocation>
+                  <pattern>kotlin</pattern>
+                  <shadedPattern>ee.braffolk.shade.kotlin</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>kotlinx</pattern>
+                  <shadedPattern>ee.braffolk.shade.kotlinx</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
@@ -168,6 +174,12 @@
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
       <version>${kotlin.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-coroutines-core</artifactId>
+      <version>1.4.0-M1</version>
     </dependency>
 
     <dependency>

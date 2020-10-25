@@ -44,15 +44,13 @@ class VisualisationHandler {
             val player = Bukkit.getPlayer(it)
             if (player != null && player.isOnline) {
               visualise(player)
-            } else {
-              playerList.remove(it)
             }
           }
         } catch (e: Exception) {
           Bukkit.broadcastMessage("error occured with border visualisation: ${e.message} - ${e.stackTraceToString()}")
         }
       }
-    }, 250, 250)
+    }, 1, visualisationInterval)
   }
 
   fun addPlayer(player: Player, performance: VisualisationPerformance) {
@@ -113,5 +111,7 @@ class VisualisationHandler {
         Color.fromRGB(140, 140, 140)
       }
     }
+
+    val visualisationInterval = 500L
   }
 }

@@ -29,4 +29,3 @@ If you want to contribute, feel free to open a PR. If you found a bug, report it
 # Planned features
 - configurable server performance settings
 - configurable relation colours
-- server remembering whether the player wanted to have visualisations on
