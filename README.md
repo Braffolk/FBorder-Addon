@@ -13,4 +13,7 @@ The visualisation can be enabled by calling /f visualise-borders or /f v-b. The 
 Drop the .jar inside the `/plugins/FactionsX/addons` folder
 
 # Known issues
-- The plugin can be laggy in massive factions that havent made their claims as one shape. This will be solved by reducing the amount of particles depending on how many lines will be visualised for the player
+- When a faction hasnt claimed its chunks in a shape with few edges, then the lines may be hard to read. 
+
+# Ideas for improvement
+The current visualisation method with a line at eye height, top and bottom planes and corner lines isnt the only way to visualise the borders of a faction. I'm looking for alternative ideas on how to make it more readable and visually appealing. If you have any ideas, drop them down here: https://github.com/Braffolk/FBorder-Addon/issues
