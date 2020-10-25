@@ -13,4 +13,4 @@ The visualisation can be enabled by calling /f visualise-borders or /f v-b. The 
 Drop the .jar inside the `/plugins/FactionsX/addons` folder
 
 # Known issues
-- The plugin can be laggy in massive factions that havent made their claims as one shape. This will be solved by reducing the amount of particles depending on how many lines will be visualised for the player
+- When a faction hasnt claimed its chunks in a shape with few edges, then the lines may be hard to read. 
