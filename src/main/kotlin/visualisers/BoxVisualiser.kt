@@ -19,7 +19,8 @@ class BoxVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
 
     val eyeY = player.eyeLocation.y.toLong()
     val verticalRange = Long.max(0, (eyeY - 32) / 64 * 64)..min((eyeY + 64) / 64 * 64, 256)
-    val maxRenderDistance = (Bukkit.getViewDistance() * 16).toDouble().pow(2).toLong()
+    val maxRenderDistance = (Bukkit.getViewDistance()
+        .coerceAtMost(player.clientViewDistance) * 16).toDouble().pow(2).toLong()
 
     val playerPerformanceF = when (visualisationPerformance) {
       VisualisationPerformance.Fast -> 4.0
