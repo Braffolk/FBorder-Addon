@@ -1,7 +1,6 @@
 package ee.braffolk.factionsx
 
 import ee.braffolk.factionsx.cache.ShapeCache
-import ee.braffolk.factionsx.visualisers.BoxVisualiser
 import ee.braffolk.factionsx.visualisers.LineVisualiser
 import net.prosavage.factionsx.core.Faction
 import net.prosavage.factionsx.manager.FactionManager

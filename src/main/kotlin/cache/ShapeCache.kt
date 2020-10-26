@@ -27,34 +27,19 @@ class ShapeCache {
       worldCaches[location.world]!!.removeChunk(faction, location)
 
   fun removeFactionChunks(faction: Faction) =
-      worldCaches.forEach { world, cache -> cache.removeFactionChunks(faction) }
+      worldCaches.forEach { (_, cache) -> cache.removeFactionChunks(faction) }
 
   fun cacheFaction(faction: Faction) =
-      worldCaches.forEach { (world, cache) -> cache.cacheFaction(faction) }
+      worldCaches.forEach { (_, cache) -> cache.cacheFaction(faction) }
 
   fun createAllMeshes() =
-      worldCaches.forEach { (world, cache) -> cache.createAllMeshes() }
+      worldCaches.forEach { (_, cache) -> cache.createAllMeshes() }
 
   fun createFactionMesh(faction: Long) =
-      worldCaches.forEach { (world, cache) -> cache.createFactionMesh(faction) }
-
-  fun getFactionInnerCorners(faction: Faction, world: String): List<FLocation> =
-      worldCaches[world]!!.getFactionInnerCorners(faction)
-
-  fun getFactionOuterCorners(faction: Faction, world: String): List<FLocation> =
-      worldCaches[world]!!.getFactionOuterCorners(faction)
-
-  fun getFactionXLines(faction: Faction, world: String): List<Line>  =
-      worldCaches[world]!!.getFactionXLines(faction)
-
-  fun getFactionZLines(faction: Faction, world: String): List<Line>  =
-      worldCaches[world]!!.getFactionZLines(faction)
-
-  fun getFactionChunks(faction: Faction, world: String): List<FLocation>  =
-      worldCaches[world]!!.getFactionChunks(faction)
+      worldCaches.forEach { (_, cache) -> cache.createFactionMesh(faction) }
 
   fun isCached(faction: Faction): Boolean =
-      worldCaches.all { (world, cache) -> cache.isCached(faction) }
+      worldCaches.all { (_, cache) -> cache.isCached(faction) }
 
   fun getWorldCache(world: String): WorldShapeCache = worldCaches[world]!!
 }
