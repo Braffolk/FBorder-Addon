@@ -1,6 +1,7 @@
 package ee.braffolk.factionsx
 
 import ee.braffolk.factionsx.cache.ShapeCache
+import ee.braffolk.factionsx.persist.FBorderConfig
 import ee.braffolk.factionsx.visualisers.LineVisualiser
 import net.prosavage.factionsx.core.Faction
 import net.prosavage.factionsx.manager.FactionManager
@@ -94,23 +95,25 @@ class VisualisationHandler {
     }
 
     fun getPlayerRelationColor(player: Player, toFaction: Faction): Color {
-      return if (player.getFPlayer().hasFaction()) {
+      val config = FBorderConfig.instance
+      val color = if (player.getFPlayer().hasFaction()) {
         val playerFaction = player.getFPlayer().getFaction()
         if (playerFaction.id == toFaction.id) {
-          Color.LIME
+          config.colorHome
         } else {
           when (playerFaction.getRelationTo(toFaction)) {
-            Relation.ALLY -> Color.LIME
-            Relation.ENEMY -> Color.RED
-            Relation.NEUTRAL -> Color.YELLOW
-            Relation.TRUCE -> Color.BLUE
+            Relation.ALLY -> config.colorAlly
+            Relation.ENEMY -> config.colorEnemy
+            Relation.NEUTRAL -> config.colorNeutral
+            Relation.TRUCE -> config.colorTruce
           }
         }
       } else {
-        Color.fromRGB(140, 140, 140)
+        config.colorNeutral
       }
+      return Color.fromRGB(color[0], color[1], color[2])
     }
 
-    val visualisationInterval = 500L
+    val visualisationInterval = FBorderConfig.instance.visualisationInterval
   }
 }

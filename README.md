@@ -21,6 +21,8 @@ Get the plugin from [SavageLabs](https://savagelabs.net/store/FBorder-Addon) or 
 
 Drop the .jar inside the `/plugins/FactionsX/addons` folder
 
+The configuration file can be found at `/plugins/FactionsX/addons/FBorder-Addon/border-config.json`
+
 ## Ideas for improvement
 I'm looking for alternative ideas on how to make it more readable and visually appealing. If you have any ideas, drop them down here: https://github.com/Braffolk/FBorder-Addon/issues
 
