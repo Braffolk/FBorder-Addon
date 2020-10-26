@@ -18,13 +18,16 @@ import kotlin.system.measureTimeMillis
 
 class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
   val heightCache = BlockHeightCache(shapeCache)
-  private val maxRenderDistance = (Bukkit.getViewDistance() * 16).toDouble().pow(2).toLong()
+  private val serverMaxRenderDistance = (Bukkit.getViewDistance() * 16).toDouble().pow(2).toLong()
   val maxDustSize = 16.0
 
   override fun visualise(player: Player, visualisationPerformance: VisualisationPerformance) {
     val eyeY = player.eyeLocation.y.toLong()
     val playerDir = player.location.direction.normalize()
     val playerPos = player.location.toVector()
+    val maxRenderDistance = serverMaxRenderDistance.coerceAtMost(
+        (player.clientViewDistance * 16).toDouble().pow(2).toLong()
+    )
 
     val playerPerformanceF = when (visualisationPerformance) {
       VisualisationPerformance.Fast -> 4.0

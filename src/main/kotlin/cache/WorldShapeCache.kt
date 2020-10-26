@@ -9,9 +9,6 @@ import kotlin.collections.HashMap
 
 class WorldShapeCache(val world: String) {
   private val factionChunks = HashMap<Long, LinkedList<FLocation>>()
-  private val factionVerticalLines = HashMap<Long, List<FLocation>>()
-  private val factionOuterCorners = HashMap<Long, List<FLocation>>()
-  private val factionInnerCorners = HashMap<Long, List<FLocation>>()
   private val factionXLines = HashMap<Long, List<Line>>()
   private val factionZLines = HashMap<Long, List<Line>>()
 
@@ -50,62 +47,13 @@ class WorldShapeCache(val world: String) {
   }
 
   fun createAllMeshes() {
-    factionChunks.forEach { (faction, chunks) ->
+    factionChunks.forEach { (faction, _) ->
       createFactionMesh(faction)
     }
   }
 
   fun createFactionMesh(faction: Long) {
     val chunks = factionChunks[faction]!!
-
-    factionOuterCorners[faction] = chunks.flatMap { c ->
-      val pairs = listOf(
-          FLocation(c.x - 1, c.z - 1, c.world),
-          FLocation(c.x + 1, c.z + 1, c.world),
-          FLocation(c.x - 1, c.z + 1, c.world),
-          FLocation(c.x + 1, c.z - 1, c.world)
-      )
-      pairs
-          .filter { p ->
-            // outer corner
-            chunks.none {
-              it.world == c.world && (
-                  (it.x == p.x && it.z == p.z || it.x == c.x && it.z == p.z || it.x == p.x && it.z == c.z))
-            }
-          }
-          .map {
-            FLocation(
-                c.x * 16 + if (it.x > c.x) 15 else 0,
-                c.z * 16 + if (it.z > c.z) 15 else 0,
-                c.world
-            )
-          }
-    }
-
-    factionInnerCorners[faction] = chunks.flatMap { c ->
-      val pairs = listOf(
-          FLocation(c.x - 1, c.z - 1, c.world),
-          FLocation(c.x + 1, c.z + 1, c.world),
-          FLocation(c.x - 1, c.z + 1, c.world),
-          FLocation(c.x + 1, c.z - 1, c.world)
-      )
-      pairs
-          .filter { p ->
-            // inner corner
-            chunks.none { it.world == c.world && it.x == p.x && it.z == p.z } &&
-                chunks.any { it.world == c.world && (it.x == p.x && it.z == c.z) } &&
-                chunks.any { it.world == c.world && (it.x == c.x && it.z == p.z) }
-          }
-          .map {
-            FLocation(
-                c.x * 16 + if (it.x > c.x) 15 else 0,
-                c.z * 16 + if (it.z > c.z) 15 else 0,
-                c.world
-            )
-          }
-    }
-
-    factionVerticalLines[faction] = (factionOuterCorners[faction]!!.toTypedArray() + factionInnerCorners[faction]!!.toTypedArray()).toList()
 
     factionXLines[faction] = chunks.flatMap { c ->
       val pairs = listOf(FLocation(c.x - 1, c.z, c.world), FLocation(c.x + 1, c.z, c.world))
@@ -132,17 +80,6 @@ class WorldShapeCache(val world: String) {
           }
     }
   }
-
-  fun getFactionInnerCorners(faction: Faction): List<FLocation> {
-    return factionInnerCorners[faction.id]!!
-  }
-
-  fun getFactionOuterCorners(faction: Faction): List<FLocation> {
-    return factionOuterCorners[faction.id]!!
-  }
-
-  fun getFactionXLines(faction: Faction): List<Line> = getFactionXLines(faction.id)
-  fun getFactionZLines(faction: Faction): List<Line> = getFactionZLines(faction.id)
 
   fun getFactionXLines(faction: Long): List<Line> = factionXLines[faction]!!
   fun getFactionZLines(faction: Long): List<Line> = factionZLines[faction]!!
