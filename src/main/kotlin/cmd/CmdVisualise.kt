@@ -1,5 +1,7 @@
-package ee.braffolk.factionsx
+package ee.braffolk.factionsx.cmd
 
+import ee.braffolk.factionsx.VisualisationHandler
+import ee.braffolk.factionsx.VisualisationPerformance
 import net.prosavage.factionsx.command.engine.CommandInfo
 import net.prosavage.factionsx.command.engine.CommandRequirementsBuilder
 import net.prosavage.factionsx.command.engine.FCommand
