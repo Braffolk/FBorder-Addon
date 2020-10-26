@@ -4,6 +4,7 @@ import ee.braffolk.factionsx.VisualisationHandler
 import ee.braffolk.factionsx.VisualisationPerformance
 import ee.braffolk.factionsx.cache.BlockHeightCache
 import ee.braffolk.factionsx.cache.ShapeCache
+import ee.braffolk.factionsx.standardDeviation
 import kotlinx.coroutines.*
 import net.prosavage.factionsx.manager.FactionManager
 import org.bukkit.Bukkit
@@ -22,8 +23,8 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
 
   override fun visualise(player: Player, visualisationPerformance: VisualisationPerformance) {
     val eyeY = player.eyeLocation.y.toLong()
-    val playerDir = player.getLocation().direction.normalize()
-    val playerVec = player.getLocation().toVector()
+    val playerDir = player.location.direction.normalize()
+    val playerPos = player.location.toVector()
 
     val playerPerformanceF = when (visualisationPerformance) {
       VisualisationPerformance.Fast -> 4.0
@@ -52,23 +53,28 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
             { v: Vector -> v.z.toInt().rem(iPlayerPerformanceF) == 0 },
             { v: Vector -> v.x.toInt().rem(iPlayerPerformanceF) == 0 }
         )
-        listOf(xLines, zLines).flatMapIndexed { index, lines ->
+        listOf(xLines, zLines).flatMapIndexed { index, l ->
+          val lines = l.filter { it.heights.isNotEmpty() }
           lines.zip(lines.map {
             val loc = Location(player.world, (it.location.x * 16.0 + 8.0), eyeY.toDouble(), (it.location.z * 16.0 + 8.0))
             player.location.distanceSquared(loc)
           })
-              .filter { (_, distance) -> distance < maxRenderDistance }
+              .filter { (chunk, distance) -> distance < maxRenderDistance }
               .filter { (chunk, _) ->
-                val linePos = Vector(
-                    chunk.location.x * 16.0 + 8.0,
-                    chunk.heights.fold(0.0, { acc, v -> acc + v.y }) / chunk.heights.size,
-                    chunk.location.z * 16.0 + 8.0
-                )
-                val lineDir = linePos.subtract(playerVec).normalize()
-                val lineDirFlat = linePos.setY(eyeY.toFloat())
-                    .subtract(playerVec.setY(eyeY.toFloat())).normalize()
+                val listY = chunk.heights.map { it.y }
+                val avgY = listY.average()
+                val standardDeviation = listY.standardDeviation(avgY)
 
-                playerDir.angle(lineDir) < Math.PI * 0.5 || playerDir.angle(lineDirFlat) < Math.PI * 0.5
+                val linePos = Vector(chunk.location.x * 16.0 + 8.0, avgY, chunk.location.z * 16.0 + 8.0)
+
+                if(standardDeviation > 30) {
+                  val lineDirFlat = linePos.clone().setY(eyeY.toFloat())
+                      .subtract(playerPos.setY(eyeY.toFloat())).normalize()
+                  playerDir.angle(lineDirFlat) < Math.PI * 0.5
+                } else {
+                  val lineDir = linePos.clone().subtract(playerPos).normalize()
+                  playerDir.angle(lineDir) < Math.PI * 0.5
+                }
               }
               .flatMap { (chunk, distance) ->
                 val size = (distance / maxRenderDistance * maxDustSize)
@@ -103,3 +109,5 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
     }
   }
 }
+
+
