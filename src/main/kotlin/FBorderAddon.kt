@@ -2,6 +2,7 @@ package ee.braffolk.factionsx
 
 import ee.braffolk.factionsx.cmd.CmdVisualise
 import ee.braffolk.factionsx.listener.ClaimListener
+import ee.braffolk.factionsx.persist.FBorderConfig
 import net.prosavage.factionsx.FactionsX
 import net.prosavage.factionsx.addonframework.Addon
 import org.bukkit.Bukkit
@@ -13,6 +14,8 @@ class FBorderAddon : Addon() {
   private val visualisationHandler = VisualisationHandler()
   private var claimListener = ClaimListener(visualisationHandler)
 
+  val config = FBorderConfig.instance //FBorderConfig()
+
   @Override
   override fun onEnable() {
     logColored("Enabling Border Visualiser Addon!")
@@ -20,6 +23,7 @@ class FBorderAddon : Addon() {
 
     val pluginManager: PluginManager = Bukkit.getPluginManager()
     pluginManager.registerEvents(claimListener, FactionsX.instance)
+    config.load(this)
   }
 
   @Override
@@ -27,6 +31,10 @@ class FBorderAddon : Addon() {
     logColored("Disabling Border Visualiser Addon!")
     FactionsX.baseCommand.removeSubCommand(CmdVisualise(visualisationHandler))
     visualisationHandler.stop()
-    HandlerList.unregisterAll(claimListener);
+    HandlerList.unregisterAll(claimListener)
+
+    // Load first to read changes from file, then save.
+    config.load(this)
+    config.save(this)
   }
 }
