@@ -80,12 +80,16 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
                 }
               }
               .flatMap { (chunk, distance) ->
-                val size = (distance / maxRenderDistance * maxDustSize)
-                val dust = Particle.DustOptions(if (Math.random() < 0.33) Color.BLACK else factionColor, size.coerceAtLeast(2.0).toFloat())
+                val size = (distance / maxRenderDistance * maxDustSize).coerceAtLeast(2.0).toFloat()
 
                 chunk.heights
                     .filter { v -> shouldRender[index](v) }
                     .map { v ->
+                      var c = if (Math.random() < 0.2) Color.BLACK else factionColor
+                      if(Math.random() < 0.2) {
+                        c = Color.WHITE
+                      }
+                      var dust = Particle.DustOptions(c, size);
                       { VisualisationHandler.createParticle(player, v.x + 0.5, v.y + 1.5, v.z + 0.5, dust) }
                     }
               }

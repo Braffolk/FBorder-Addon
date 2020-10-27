@@ -28,7 +28,7 @@ class FBorderConfig: Config() {
 }
 
 open class Config {
-  var visualisationInterval = 550L
+  var visualisationInterval = 450L
   var colorAlly = mutableListOf(191, 255, 0)
   var colorHome = mutableListOf(191, 255, 0)
   var colorNeutral = mutableListOf(255, 255, 0)
