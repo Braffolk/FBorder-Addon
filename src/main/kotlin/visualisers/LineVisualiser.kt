@@ -5,13 +5,16 @@ import ee.braffolk.factionsx.VisualisationPerformance
 import ee.braffolk.factionsx.cache.BlockHeightCache
 import ee.braffolk.factionsx.cache.ShapeCache
 import ee.braffolk.factionsx.standardDeviation
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.prosavage.factionsx.manager.FactionManager
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.entity.Player
+import org.bukkit.util.BoundingBox
 import org.bukkit.util.Vector
 import kotlin.math.pow
 import kotlin.system.measureTimeMillis
@@ -25,9 +28,17 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
     val eyeY = player.eyeLocation.y.toLong()
     val playerDir = player.location.direction.normalize()
     val playerPos = player.location.toVector()
-    val maxRenderDistance = serverMaxRenderDistance.coerceAtMost(
+    val maxRenderDistanceSquared = serverMaxRenderDistance.coerceAtMost(
         (player.clientViewDistance * 16).toDouble().pow(2).toLong()
     )
+    val maxRenderDistance = maxRenderDistanceSquared.toDouble().pow(0.5)
+    val playerViewBbox = BoundingBox(
+        player.location.x - maxRenderDistance, 1.0, player.location.z - maxRenderDistance,
+        player.location.x + maxRenderDistance, 255.0, player.location.z + maxRenderDistance,
+    )
+
+    val worldName = player.world.name
+    val worldShapeCache = shapeCache.getWorldCache(worldName)
 
     val playerPerformanceF = when (visualisationPerformance) {
       VisualisationPerformance.Fast -> 4.0
@@ -46,7 +57,13 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
           heightCache.createFactionMesh(faction.id)
         }
 
-        val worldName = player.world.name
+        // check if player is close enough to the bounding box to see any chunk
+        val bbox = worldShapeCache.getFactionBbox(faction.id)
+        if(!bbox.overlaps(playerViewBbox)) {
+          return@flatMap listOf()
+        }
+
+        // now check every individual line
         val factionColor = VisualisationHandler.getPlayerRelationColor(player, faction)
 
         val xLines = heightCache.getFactionXHeights(faction.id, worldName)
@@ -62,7 +79,7 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
             val loc = Location(player.world, (it.location.x * 16.0 + 8.0), eyeY.toDouble(), (it.location.z * 16.0 + 8.0))
             player.location.distanceSquared(loc)
           })
-              .filter { (chunk, distance) -> distance < maxRenderDistance }
+              .filter { (chunk, distance) -> distance < maxRenderDistanceSquared }
               .filter { (chunk, _) ->
                 val listY = chunk.heights.map { it.y }
                 val avgY = listY.average()
@@ -80,12 +97,16 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
                 }
               }
               .flatMap { (chunk, distance) ->
-                val size = (distance / maxRenderDistance * maxDustSize)
-                val dust = Particle.DustOptions(if (Math.random() < 0.33) Color.BLACK else factionColor, size.coerceAtLeast(2.0).toFloat())
+                val size = (distance / maxRenderDistanceSquared * maxDustSize).coerceAtLeast(2.0).toFloat()
 
                 chunk.heights
                     .filter { v -> shouldRender[index](v) }
                     .map { v ->
+                      var c = if (Math.random() < 0.2) Color.BLACK else factionColor
+                      if(Math.random() < 0.2) {
+                        c = Color.WHITE
+                      }
+                      var dust = Particle.DustOptions(c, size);
                       { VisualisationHandler.createParticle(player, v.x + 0.5, v.y + 1.5, v.z + 0.5, dust) }
                     }
               }
