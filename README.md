@@ -1,8 +1,8 @@
 # FBorder-Addon
 Minecraft plugin [FactionsX](https://www.spigotmc.org/resources/factionsx.83459/) addon that visualises faction borders using particles and colours them according to faction relations.
 
-![faction with borders visualised](https://i.imgur.com/08Z9ndp.png "Example faction")
-![nether faction with borders visualised](https://i.imgur.com/6XvebN9.png "nether faction")
+![faction with borders visualised](https://i.imgur.com/hSBXcHC.png "Example faction")
+![various borders](https://i.imgur.com/B2rhmps.jpg "faction")
 
 The visualisation can be enabled by calling /f visualise-borders or /f v-b. The command also has a performance option
 
