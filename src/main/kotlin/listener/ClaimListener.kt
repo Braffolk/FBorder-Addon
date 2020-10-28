@@ -4,6 +4,7 @@ import ee.braffolk.factionsx.VisualisationHandler
 import net.prosavage.factionsx.event.FactionPreClaimEvent
 import net.prosavage.factionsx.event.FactionUnClaimAllEvent
 import net.prosavage.factionsx.event.FactionUnClaimEvent
+import net.prosavage.factionsx.manager.FactionManager
 import net.prosavage.factionsx.manager.GridManager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -37,7 +38,7 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
     shapeCache.cacheChunk(event.factionClaiming, event.fLocation)
     shapeCache.createFactionMesh(event.factionClaiming.id)
     heightCache.createFactionMesh(event.factionClaiming.id)
-    if(!event.claimedFaction.isSystemFaction()) {
+    if (event.claimedFaction.id != FactionManager.WILDERNESS_ID) {
       shapeCache.removeChunk(event.claimedFaction, event.fLocation)
       shapeCache.createFactionMesh(event.claimedFaction.id)
       heightCache.createFactionMesh(event.claimedFaction.id)
@@ -47,7 +48,7 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
   @EventHandler
   fun onBlockBreak(event: BlockBreakEvent) {
     val faction = GridManager.getFactionAt(event.block.chunk)
-    if(!faction.isSystemFaction()) {
+    if (faction.id != FactionManager.WILDERNESS_ID) {
       val world = event.block.world.name
       heightCache.createFactionMesh(world, faction.id)
     }
@@ -56,7 +57,7 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
   @EventHandler
   fun onBlockPlace(event: BlockPlaceEvent) {
     val faction = GridManager.getFactionAt(event.block.chunk)
-    if(!faction.isSystemFaction()) {
+    if (faction.id != FactionManager.WILDERNESS_ID) {
       val world = event.block.world.name
       heightCache.createFactionMesh(world, faction.id)
     }

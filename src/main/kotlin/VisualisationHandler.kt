@@ -30,7 +30,7 @@ class VisualisationHandler {
 
   init {
     FactionManager.getFactions().forEach { faction ->
-      if (!faction.isSystemFaction()) {
+      if (faction.id != FactionManager.WILDERNESS_ID) {
         shapeCache.cacheFaction(faction)
       }
     }
@@ -100,6 +100,13 @@ class VisualisationHandler {
         val playerFaction = player.getFPlayer().getFaction()
         if (playerFaction.id == toFaction.id) {
           config.colorHome
+        } else if(toFaction.isSystemFaction()) {
+          when(toFaction.id) {
+            FactionManager.SAFEZONE_ID    -> config.colorTruce
+            FactionManager.WARZONE_ID     -> config.colorEnemy
+            FactionManager.WILDERNESS_ID  -> config.colorNeutral
+            else  -> listOf(0, 0, 0)
+          }
         } else {
           when (playerFaction.getRelationTo(toFaction)) {
             Relation.ALLY -> config.colorAlly

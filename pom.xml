@@ -6,7 +6,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>FBorder-Addon</artifactId>
-  <version>v0.8-1.0.8-RC</version>
+  <version>v0.9-1.0.8-RC</version>
 
   <properties>
     <kotlin.version>1.4.10</kotlin.version>
