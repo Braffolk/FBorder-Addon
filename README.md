@@ -2,7 +2,7 @@
 Minecraft plugin [FactionsX](https://www.spigotmc.org/resources/factionsx.83459/) addon that visualises faction borders using particles and colours them according to faction relations.
 
 ![faction with borders visualised](https://i.imgur.com/hSBXcHC.png "Example faction")
-![various borders](https://i.imgur.com/B2rhmps.jpg "faction")
+![various borders](https://i.imgur.com/2pszrE5.png "faction")
 
 The visualisation can be enabled by calling /f visualise-borders or /f v-b. The command also has a performance option
 
