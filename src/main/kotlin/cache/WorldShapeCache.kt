@@ -4,6 +4,7 @@ import net.prosavage.factionsx.core.Faction
 import net.prosavage.factionsx.manager.FactionManager
 import net.prosavage.factionsx.manager.GridManager
 import net.prosavage.factionsx.persist.data.FLocation
+import org.bukkit.util.BoundingBox
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -11,6 +12,7 @@ class WorldShapeCache(val world: String) {
   private val factionChunks = HashMap<Long, LinkedList<FLocation>>()
   private val factionXLines = HashMap<Long, List<Line>>()
   private val factionZLines = HashMap<Long, List<Line>>()
+  private val factionBbox = HashMap<Long, BoundingBox>()
 
   init {
     createAllMeshes()
@@ -55,6 +57,15 @@ class WorldShapeCache(val world: String) {
   fun createFactionMesh(faction: Long) {
     val chunks = factionChunks[faction]!!
 
+    if(chunks.isNotEmpty()) {
+      factionBbox[faction] = BoundingBox(
+          chunks.minOf { it.x * 16.0 }, 0.0, chunks.minOf { it.z * 16.0 },
+          chunks.maxOf { it.x * 16.0 + 16.0 }, 256.0, chunks.maxOf { it.z * 16.0 + 16.0 }
+      )
+    } else {
+      factionBbox[faction] = BoundingBox(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    }
+
     factionXLines[faction] = chunks.flatMap { c ->
       val pairs = listOf(FLocation(c.x - 1, c.z, c.world), FLocation(c.x + 1, c.z, c.world))
       pairs
@@ -83,6 +94,8 @@ class WorldShapeCache(val world: String) {
 
   fun getFactionXLines(faction: Long): List<Line> = factionXLines[faction]!!
   fun getFactionZLines(faction: Long): List<Line> = factionZLines[faction]!!
+
+  fun getFactionBbox(faction: Long): BoundingBox = factionBbox[faction]!!
 
   fun getFactionChunks(faction: Faction): List<FLocation> {
     return factionChunks[faction.id]!!
