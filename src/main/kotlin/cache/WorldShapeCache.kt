@@ -103,6 +103,9 @@ class WorldShapeCache(val world: String) {
 
   fun isCached(faction: Faction): Boolean = isCached(faction.id)
   fun isCached(faction: Long): Boolean {
-    return factionChunks.containsKey(faction)
+    return factionChunks.containsKey(faction) &&
+        factionXLines.containsKey(faction) &&
+        factionZLines.containsKey(faction) &&
+        factionBbox.containsKey(faction)
   }
 }

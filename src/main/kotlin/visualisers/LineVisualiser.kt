@@ -22,7 +22,8 @@ import kotlin.system.measureTimeMillis
 class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
   val heightCache = BlockHeightCache(shapeCache)
   private val serverMaxRenderDistance = (Bukkit.getViewDistance() * 16).toDouble().pow(2).toLong()
-  val maxDustSize = 16.0
+  val maxDustSize = 8.0
+  val dustMaxSizeDistance = (6.0 * 16.0).pow(2)
 
   override fun visualise(player: Player, visualisationPerformance: VisualisationPerformance) {
     val eyeY = player.eyeLocation.y.toLong()
@@ -40,6 +41,7 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
     val worldName = player.world.name
     val worldShapeCache = shapeCache.getWorldCache(worldName)
 
+    // performance factor
     val playerPerformanceF = when (visualisationPerformance) {
       VisualisationPerformance.Fast -> 4.0
       VisualisationPerformance.Normal -> 2.0
@@ -47,8 +49,12 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
     }
     val iPlayerPerformanceF = playerPerformanceF.toInt()
 
+    // find which iteration of line rendering we are at
+    val renderCount = System.currentTimeMillis() / VisualisationHandler.visualisationInterval
+
+
     val operations = FactionManager.getFactions().flatMap { faction ->
-      if (!faction.isSystemFaction()) {
+      if (faction.id != FactionManager.WILDERNESS_ID) {
         if (!shapeCache.isCached(faction)) {
           shapeCache.cacheFaction(faction)
           shapeCache.createFactionMesh(faction.id)
@@ -59,7 +65,7 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
 
         // check if player is close enough to the bounding box to see any chunk
         val bbox = worldShapeCache.getFactionBbox(faction.id)
-        if(!bbox.overlaps(playerViewBbox)) {
+        if (!bbox.overlaps(playerViewBbox)) {
           return@flatMap listOf()
         }
 
@@ -69,10 +75,13 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
         val xLines = heightCache.getFactionXHeights(faction.id, worldName)
         val zLines = heightCache.getFactionZHeights(faction.id, worldName)
 
+        //
         val shouldRender = listOf(
-            { v: Vector -> v.z.toInt().rem(iPlayerPerformanceF) == 0 },
-            { v: Vector -> v.x.toInt().rem(iPlayerPerformanceF) == 0 }
+            // at each render cycle, move one block further in the render grid.
+            { v: Vector -> v.z.toInt().rem(iPlayerPerformanceF) == renderCount.rem(iPlayerPerformanceF).toInt() },
+            { v: Vector -> v.x.toInt().rem(iPlayerPerformanceF) == renderCount.rem(iPlayerPerformanceF).toInt() }
         )
+
         listOf(xLines, zLines).flatMapIndexed { index, l ->
           val lines = l.filter { it.heights.isNotEmpty() }
           lines.zip(lines.map {
@@ -87,7 +96,7 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
 
                 val linePos = Vector(chunk.location.x * 16.0 + 8.0, avgY, chunk.location.z * 16.0 + 8.0)
 
-                if(standardDeviation > 30) {
+                if (standardDeviation > 30) {
                   val lineDirFlat = linePos.clone().setY(eyeY.toFloat())
                       .subtract(playerPos.setY(eyeY.toFloat())).normalize()
                   playerDir.angle(lineDirFlat) < Math.PI * 0.5
@@ -97,13 +106,14 @@ class LineVisualiser(override val shapeCache: ShapeCache) : IVisualiserHandler {
                 }
               }
               .flatMap { (chunk, distance) ->
-                val size = (distance / maxRenderDistanceSquared * maxDustSize).coerceAtLeast(2.0).toFloat()
+                val size = (distance / dustMaxSizeDistance * maxDustSize + playerPerformanceF / 2.0)
+                    .coerceAtLeast(2.0).coerceAtMost(maxDustSize).toFloat()
 
                 chunk.heights
                     .filter { v -> shouldRender[index](v) }
                     .map { v ->
                       var c = if (Math.random() < 0.2) Color.BLACK else factionColor
-                      if(Math.random() < 0.2) {
+                      if (Math.random() < 0.2) {
                         c = Color.WHITE
                       }
                       var dust = Particle.DustOptions(c, size);

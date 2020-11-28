@@ -38,6 +38,9 @@ class ShapeCache {
   fun createFactionMesh(faction: Long) =
       worldCaches.forEach { (_, cache) -> cache.createFactionMesh(faction) }
 
+  fun createFactionMesh(world: String, faction: Long) =
+      worldCaches[world]!!.createFactionMesh(faction)
+
   fun isCached(faction: Faction): Boolean =
       worldCaches.all { (_, cache) -> cache.isCached(faction) }
 
