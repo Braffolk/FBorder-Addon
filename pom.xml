@@ -6,7 +6,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>FBorder-Addon</artifactId>
-  <version>v0.9-1.0.8-RC</version>
+  <version>v0.9-1.0.9-RC</version>
 
   <properties>
     <kotlin.version>1.4.10</kotlin.version>
@@ -133,14 +133,14 @@
     <dependency>
       <groupId>net.prosavage.factionsx</groupId>
       <artifactId>FactionsX</artifactId>
-      <version>1.0.7-RC</version>
+      <version>1.0.8-RC</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>net.prosavage.factionsx.addonframework</groupId>
       <artifactId>AddonFramework</artifactId>
-      <version>1.0.7-RC</version>
+      <version>1.0.8-RC</version>
       <scope>provided</scope>
     </dependency>
 
