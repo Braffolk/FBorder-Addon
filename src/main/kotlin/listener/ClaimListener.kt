@@ -21,23 +21,30 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
 
   @EventHandler
   fun onUnclaim(event: FactionUnClaimEvent) {
-    shapeCache.removeChunk(event.factionUnClaiming, event.fLocation)
-    shapeCache.createFactionMesh(event.factionUnClaiming.id)
-    heightCache.createFactionMesh(event.factionUnClaiming.id)
+    if (event.factionUnClaiming.id != FactionManager.WILDERNESS_ID) {
+      shapeCache.removeChunk(event.factionUnClaiming, event.fLocation)
+      shapeCache.createFactionMesh(event.factionUnClaiming.id)
+      heightCache.createFactionMesh(event.factionUnClaiming.id)
+    }
   }
 
   @EventHandler
   fun onUnclaimAll(event: FactionUnClaimAllEvent) {
-    shapeCache.removeFactionChunks(event.unclaimingFaction)
-    shapeCache.createFactionMesh(event.unclaimingFaction.id)
-    heightCache.createFactionMesh(event.unclaimingFaction.id)
+    if (event.unclaimingFaction.id != FactionManager.WILDERNESS_ID) {
+      shapeCache.removeFactionChunks(event.unclaimingFaction)
+      shapeCache.createFactionMesh(event.unclaimingFaction.id)
+      heightCache.createFactionMesh(event.unclaimingFaction.id)
+    }
   }
 
   @EventHandler
   fun onClaim(event: FactionPreClaimEvent) {
-    shapeCache.cacheChunk(event.factionClaiming, event.fLocation)
-    shapeCache.createFactionMesh(event.factionClaiming.id)
-    heightCache.createFactionMesh(event.factionClaiming.id)
+    if (event.factionClaiming.id != FactionManager.WILDERNESS_ID) {
+      shapeCache.cacheChunk(event.factionClaiming, event.fLocation)
+      shapeCache.createFactionMesh(event.factionClaiming.id)
+      heightCache.createFactionMesh(event.factionClaiming.id)
+    }
+
     if (event.claimedFaction.id != FactionManager.WILDERNESS_ID) {
       shapeCache.removeChunk(event.claimedFaction, event.fLocation)
       shapeCache.createFactionMesh(event.claimedFaction.id)
@@ -50,6 +57,10 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
     val faction = GridManager.getFactionAt(event.block.chunk)
     if (faction.id != FactionManager.WILDERNESS_ID) {
       val world = event.block.world.name
+      if(!shapeCache.isCached(faction)) {
+        shapeCache.cacheFaction(faction)
+        shapeCache.createFactionMesh(faction.id)
+      }
       heightCache.createFactionMesh(world, faction.id)
     }
   }
@@ -59,6 +70,10 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
     val faction = GridManager.getFactionAt(event.block.chunk)
     if (faction.id != FactionManager.WILDERNESS_ID) {
       val world = event.block.world.name
+      if(!shapeCache.isCached(faction)) {
+        shapeCache.cacheFaction(faction)
+        shapeCache.createFactionMesh(faction.id)
+      }
       heightCache.createFactionMesh(world, faction.id)
     }
   }
