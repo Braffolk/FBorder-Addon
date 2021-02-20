@@ -21,7 +21,6 @@ class CmdVisualise(private val visualisationHandler: VisualisationHandler) : FCo
     commandRequirements = CommandRequirementsBuilder()
         .asPlayer(true)
         .build()
-    visualisationHandler.shapeCache.createAllMeshes()
   }
 
   override fun execute(info: CommandInfo): Boolean {

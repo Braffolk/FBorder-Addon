@@ -23,9 +23,15 @@ class BlockHeightCache(private val shapeCache: ShapeCache) {
     worldCaches[world]!!.createFactionMesh(faction)
   }
 
+  fun updateChunkMesh(world: String, faction: Long, x: Int, z: Int) {
+    worldCaches[world]!!.updateChunkMesh(faction, x, z)
+  }
+
   fun createAllMeshes() {
     FactionManager.getFactions().forEach {
-      createFactionMesh(it.id)
+      if (it.id != FactionManager.WILDERNESS_ID) {
+        createFactionMesh(it.id)
+      }
     }
   }
 

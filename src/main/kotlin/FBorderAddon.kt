@@ -1,7 +1,7 @@
 package ee.braffolk.factionsx
 
 import ee.braffolk.factionsx.cmd.CmdVisualise
-import ee.braffolk.factionsx.listener.ClaimListener
+import ee.braffolk.factionsx.listener.BorderClaimListener
 import ee.braffolk.factionsx.persist.FBorderConfig
 import net.prosavage.factionsx.FactionsX
 import net.prosavage.factionsx.addonframework.Addon
@@ -12,7 +12,7 @@ import org.bukkit.plugin.PluginManager
 
 class FBorderAddon : Addon() {
   private val visualisationHandler = VisualisationHandler()
-  private var claimListener = ClaimListener(visualisationHandler)
+  private var claimListener = BorderClaimListener(visualisationHandler)
 
   val config = FBorderConfig.instance //FBorderConfig()
 
