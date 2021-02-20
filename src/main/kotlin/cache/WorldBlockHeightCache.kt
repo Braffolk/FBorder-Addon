@@ -26,9 +26,21 @@ class WorldBlockHeightCache(private val shapeCache: WorldShapeCache) {
     storeLines(faction, shapeCache.getFactionZLines(faction), factionZHeights)
   }
 
+  fun updateChunkMesh(faction: Long, x: Int, z: Int) {
+    if(!shapeCache.isCached(faction)) {
+      shapeCache.cacheFaction(faction)
+      shapeCache.createFactionMesh(faction)
+    }
+    val location = Pair(x, z)
+    updateChunkLines(faction, location, shapeCache.getChunkXLines(x, z), factionXHeights)
+    updateChunkLines(faction, location, shapeCache.getChunkZLines(x, z), factionZHeights)
+  }
+
   fun createAllMeshes() {
     FactionManager.getFactions().forEach {
-      createFactionMesh(it.id)
+      if (it.id != FactionManager.WILDERNESS_ID) {
+        createFactionMesh(it.id)
+      }
     }
   }
 
@@ -51,6 +63,19 @@ class WorldBlockHeightCache(private val shapeCache: WorldShapeCache) {
       map[faction]?.clear()
     }
 
+    addLinesToFactionList(lines, map[faction]!!)
+  }
+
+  private fun updateChunkLines(faction: Long, location: Pair<Int, Int>, lines: List<Line>, map: HashMap<Long, CopyOnWriteArrayList<FChunkHeights>>) {
+    map[faction] = CopyOnWriteArrayList(
+      map[faction]!!
+        .filter { it.location.x.toInt() != location.first || it.location.z.toInt() != location.second }
+    )
+
+    addLinesToFactionList(lines, map[faction]!!)
+  }
+
+  private fun addLinesToFactionList(lines: List<Line>, list: CopyOnWriteArrayList<FChunkHeights>) {
     lines.forEach {
       val world = Bukkit.getWorld(it.p1.world)!!
       val chunk = world.getBlockAt(it.p1.x.toInt(), 0, it.p1.z.toInt()).chunk
@@ -76,8 +101,7 @@ class WorldBlockHeightCache(private val shapeCache: WorldShapeCache) {
           }
         }
       }
-      map[faction]!!.add(chunkHeights)
+      list.add(chunkHeights)
     }
   }
-
 }

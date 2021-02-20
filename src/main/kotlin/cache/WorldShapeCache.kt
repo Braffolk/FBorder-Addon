@@ -13,6 +13,8 @@ class WorldShapeCache(val world: String) {
   private val factionXLines = HashMap<Long, List<Line>>()
   private val factionZLines = HashMap<Long, List<Line>>()
   private val factionBbox = HashMap<Long, BoundingBox>()
+  private val chunkXLines = HashMap<Pair<Int, Int>, List<Line>>()
+  private val chunkZLines = HashMap<Pair<Int, Int>, List<Line>>()
 
   init {
     createAllMeshes()
@@ -49,12 +51,17 @@ class WorldShapeCache(val world: String) {
   }
 
   fun createAllMeshes() {
-    factionChunks.forEach { (faction, _) ->
-      createFactionMesh(faction)
+    FactionManager.getFactions().forEach {
+      if (it.id != FactionManager.WILDERNESS_ID) {
+        createFactionMesh(it.id)
+      }
     }
   }
 
   fun createFactionMesh(faction: Long) {
+    if(!factionChunks.containsKey(faction)) {
+      cacheFaction(faction)
+    }
     val chunks = factionChunks[faction]!!
 
     if(chunks.isNotEmpty()) {
@@ -68,7 +75,6 @@ class WorldShapeCache(val world: String) {
 
     factionXLines[faction] = chunks.flatMap { c ->
       val pairs = listOf(FLocation(c.x - 1, c.z, c.world), FLocation(c.x + 1, c.z, c.world))
-      pairs
           .filter { p -> chunks.none { it.x == p.x && it.z == p.z } }
           .map {
             val x = c.x * 16 + if (it.x > c.x) 15 else 0
@@ -77,10 +83,11 @@ class WorldShapeCache(val world: String) {
                 FLocation(x, c.z * 16 + 15, c.world)
             )
           }
+      chunkXLines[Pair(c.x.toInt(), c.z.toInt())] = pairs
+      pairs
     }
     factionZLines[faction] = chunks.flatMap { c ->
       val pairs = listOf(FLocation(c.x, c.z - 1, c.world), FLocation(c.x, c.z + 1, c.world))
-      pairs
           .filter { p -> chunks.none { it.x == p.x && it.z == p.z } }
           .map {
             val z = c.z * 16 + if (it.z > c.z) 15 else 0
@@ -89,11 +96,17 @@ class WorldShapeCache(val world: String) {
                 FLocation(c.x * 16 + 15, z, c.world)
             )
           }
+      chunkZLines[Pair(c.x.toInt(), c.z.toInt())] = pairs
+      pairs
     }
   }
 
   fun getFactionXLines(faction: Long): List<Line> = factionXLines[faction]!!
   fun getFactionZLines(faction: Long): List<Line> = factionZLines[faction]!!
+  fun getChunkXLines(x: Int, z: Int): List<Line> = chunkXLines[Pair(x, z)]!!
+  fun getChunkZLines(x: Int, z: Int): List<Line> = chunkZLines[Pair(x, z)]!!
+  fun isChunkCached(x: Long, z: Long): Boolean =
+    chunkXLines.containsKey(Pair(x, z)) && chunkZLines.containsKey(Pair(x, z))
 
   fun getFactionBbox(faction: Long): BoundingBox = factionBbox[faction]!!
 

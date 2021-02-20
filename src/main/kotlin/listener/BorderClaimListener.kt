@@ -9,13 +9,10 @@ import net.prosavage.factionsx.manager.GridManager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockFadeEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.world.ChunkEvent
 
 
-class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
+class BorderClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
   val shapeCache = visualisationHandler.shapeCache
   val heightCache = visualisationHandler.visualiser.heightCache
 
@@ -61,7 +58,13 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
         shapeCache.cacheFaction(faction)
         shapeCache.createFactionMesh(faction.id)
       }
-      heightCache.createFactionMesh(world, faction.id)
+      if(!heightCache.isCached(faction.id)) {
+        heightCache.createFactionMesh(world, faction.id)
+      } else {
+        // only update the changed chunk
+        val chunk = event.block.location.chunk
+        heightCache.updateChunkMesh(world, faction.id, chunk.x, chunk.z)
+      }
     }
   }
 
@@ -74,7 +77,13 @@ class ClaimListener(val visualisationHandler: VisualisationHandler) : Listener {
         shapeCache.cacheFaction(faction)
         shapeCache.createFactionMesh(faction.id)
       }
-      heightCache.createFactionMesh(world, faction.id)
+      if(!heightCache.isCached(faction.id)) {
+        heightCache.createFactionMesh(world, faction.id)
+      } else {
+        // only update the changed chunk
+        val chunk = event.block.location.chunk
+        heightCache.updateChunkMesh(world, faction.id, chunk.x, chunk.z)
+      }
     }
   }
 }
